@@ -13,6 +13,9 @@ namespace neu3n0 {
             RandomIt secondBegin, RandomIt secondEnd, RandomIt res); // merge two arrays via iterators
         template <class T>
         static void merge(T* first, size_t count1, T* second, size_t count2, T* res); // merge two arrays via pointers and size
+    private: // merge for mergeSort
+        template <class T>
+        static void merge(T* a, size_t left, size_t middle, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>); // merge two arrays via pointers and size
     public: // sort functions via pointer and size
         template <class T>
         static void selectionSort(T* a, size_t n, std::function<bool(const T&, const T&)> compare = compareLess<T>);
@@ -23,7 +26,7 @@ namespace neu3n0 {
         template <class T>
         static void insertionSort(T* a, size_t n, std::function<bool(const T&, const T&)> compare = compareLess<T>);
         template <class T>
-        static void meregeSort(T* a, size_t n, std::function<bool(const T&, const T&)> compare = compareLess<T>);
+        static void mergeSort(T* a, size_t left, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>);  // [left, right)
     public: // sort functions via iterators
         template<class RandomIt, class Type>
         static void selectionSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
@@ -33,8 +36,8 @@ namespace neu3n0 {
         static void bubbleSortTwo(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
         template <class RandomIt, class Type>
         static void insertionSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
-        template <class RandomIt, class Type>
-        static void mergeSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
+        // template <class RandomIt, class Type>
+        // static void mergeSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
     };
 };
 
@@ -75,6 +78,16 @@ void neu3n0::algorithms::insertionSort(T* a, size_t n, std::function<bool(const 
         }
         if (j != i) a[j] = tmp;
     }
+}
+
+template <class T>
+void neu3n0::algorithms::mergeSort(T* a, size_t left, size_t right, std::function<bool(const T&, const T&)> compare) {
+    if (left + 1 == right) return;
+    // if (left < right) return;
+    size_t middle = left + (right - left) / 2;
+    mergeSort(a, left, middle, compare);
+    mergeSort(a, middle, right, compare);
+    merge(a, left, middle, right, compare);
 }
 
 /*---------- sort functions via iterators ----------*/
@@ -146,6 +159,36 @@ void neu3n0::algorithms::merge(T* first, size_t count1, T* second, size_t count2
         ++j;
         ++p;
     }
+}
+
+template <class T>
+void neu3n0::algorithms::merge(T* a, size_t left, size_t middle, size_t right, std::function<bool(const T&, const T&)> compare) {
+    size_t i = left, j = middle, p = 0;
+    T* res = new T[right - left];
+    while (i < middle && j < right) {
+        if (compare(a[j], a[i])) {
+            res[p] = a[i];
+            ++i;
+        }
+        else {
+            res[p] = a[j];
+            ++j;
+        }
+        ++p;
+    }
+    while (i < middle) {
+        res[p] = a[i];
+        ++i;
+        ++p;
+    }
+    while (j < right) {
+        res[p] = a[j];
+        ++j;
+        ++p;
+    }
+
+    for (size_t in = 0; in < right - left; ++in) a[left + in] = res[in];
+    delete[] res;
 }
 
 /*---------- merge via iterators ----------*/

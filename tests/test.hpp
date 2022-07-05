@@ -57,9 +57,9 @@ bool tests::testViaPointer() {
     printArray(a, count, "insertionSort");
 
     memcpy(a, b, count * sizeof(b[0]));
-    neu3n0::algorithms::insertionSort(a, count, cmpMore);
-    printArray(a, count, "insertionSortWithFunctionMore");
-    
+    neu3n0::algorithms::mergeSort(a, 0, count);
+    printArray(a, count, "mergeSort");
+
     checkFirst = true;
     delete[] a;
     delete[] b;
@@ -93,10 +93,6 @@ bool tests::testViaIterator() {
     v = vTmp;
     neu3n0::algorithms::insertionSort(v.begin(), v.end(), cmpLess);
     printArray(v, v.size(), "insertionSort");
-
-    v = vTmp;
-    neu3n0::algorithms::insertionSort(v.begin(), v.end(), cmpMore);
-    printArray(v, v.size(), "insertionSortWithFunctionMore");
 
     return true;
 }
