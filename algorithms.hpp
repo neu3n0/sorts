@@ -27,6 +27,8 @@ namespace neu3n0 {
         static void insertionSort(T* a, size_t n, std::function<bool(const T&, const T&)> compare = compareLess<T>);
         template <class T>
         static void mergeSort(T* a, size_t left, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>);  // [left, right)
+        template <class T>
+        static void quickSort(T* a, size_t left, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>);
     public: // sort functions via iterators
         template<class RandomIt, class Type>
         static void selectionSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
