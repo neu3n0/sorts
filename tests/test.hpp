@@ -5,6 +5,7 @@
 #include <cstring>
 #include <iostream>
 #include <vector>
+#include <assert.h>
 
 class tests {
 public:
@@ -29,6 +30,11 @@ private:
             std::cout << a[i] << " ";
         std::cout << std::endl;
     }
+    template <class T, class CMP>
+    inline static void checkArray(const T& a, size_t n, CMP compare, const std::string& name = "") {
+        for (size_t i = 1; i < n; ++i)
+            assert(compare(a[i], a[i - 1]));
+    }
 };
 
 bool tests::testViaPointer() {
@@ -43,22 +49,32 @@ bool tests::testViaPointer() {
     std::cout << "/*---------- sort functions via pointer and size ----------*/" << std::endl;
     neu3n0::algorithms::selectionSort(a, count);
     printArray(a, count, "selectionSort");
+    checkArray(a, count, cmpLess);
     
     memcpy(a, b, count * sizeof(b[0]));
     neu3n0::algorithms::bubbleSort(a, count);
     printArray(a, count, "bubbleSort");
+    checkArray(a, count, cmpLess);
 
     memcpy(a, b, count * sizeof(b[0]));
     neu3n0::algorithms::bubbleSortTwo(a, count);
     printArray(a, count, "bubbleSortTwo");
+    checkArray(a, count, cmpLess);
 
     memcpy(a, b, count * sizeof(b[0]));
     neu3n0::algorithms::insertionSort(a, count);
     printArray(a, count, "insertionSort");
+    checkArray(a, count, cmpLess);
 
     memcpy(a, b, count * sizeof(b[0]));
-    neu3n0::algorithms::mergeSort(a, 0, count);
+    neu3n0::algorithms::mergeSort(a, count);
     printArray(a, count, "mergeSort");
+    checkArray(a, count, cmpLess);
+
+    memcpy(a, b, count * sizeof(b[0]));
+    neu3n0::algorithms::quickSort(a, count);
+    printArray(a, count, "quickSort");
+    checkArray(a, count, cmpLess);
 
     checkFirst = true;
     delete[] a;
@@ -81,18 +97,26 @@ bool tests::testViaIterator() {
     
     neu3n0::algorithms::selectionSort(v.begin(), v.end(), cmpLess);
     printArray(v, v.size(), "selectionSort");
+    checkArray(v, v.size(), cmpLess);
 
     v = vTmp;
     neu3n0::algorithms::bubbleSort(v.begin(), v.end(), cmpLess);
     printArray(v, v.size(), "bubbleSort");
+    checkArray(v, v.size(), cmpLess);
 
     v = vTmp;
     neu3n0::algorithms::bubbleSortTwo(v.begin(), v.end(), cmpLess);
     printArray(v, v.size(), "bubbleSortTwo");
+    checkArray(v, v.size(), cmpLess);
 
     v = vTmp;
     neu3n0::algorithms::insertionSort(v.begin(), v.end(), cmpLess);
     printArray(v, v.size(), "insertionSort");
+    checkArray(v, v.size(), cmpLess);
+
+    // v = vTmp;
+    // neu3n0::algorithms::mergeSort(v.begin(), v.end(), cmpLess);
+    // printArray(v, v.size(), "mergeSort");
 
     return true;
 }
@@ -111,6 +135,7 @@ bool tests::testMerge() {
     neu3n0::algorithms::merge(a, count1, b, count2, res);
 
     tests::printArray(res, count1 + count2, "res");
+    checkArray(res, count1 + count2, cmpLess);
     delete[] a;
     delete[] b;
     delete[] res; 
@@ -130,5 +155,6 @@ bool tests::testMerge() {
     tests::printArray(v2, v2.size(), "v2: ");
     neu3n0::algorithms::merge(v1.begin(), v1.end(), v2.begin(), v2.end(), vRes.begin());
     tests::printArray(vRes, vRes.size(), "vRes: ");
+    checkArray(vRes, vRes.size(), cmpLess);
     return true;
 }

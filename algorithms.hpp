@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <iostream>
 
 namespace neu3n0 {
     class algorithms {
@@ -16,6 +17,8 @@ namespace neu3n0 {
     private: // merge for mergeSort
         template <class T>
         static void merge(T* a, size_t left, size_t middle, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>); // merge two arrays via pointers and size
+        // template <class RandomIt, class Type>
+        // static void merge(RandomIt left, RandomIt middle, RandomIt right, std::function<bool(const Type&, const Type&)> compare); // merge two arrays via iterators
     public: // sort functions via pointer and size
         template <class T>
         static void selectionSort(T* a, size_t n, std::function<bool(const T&, const T&)> compare = compareLess<T>);
@@ -26,9 +29,9 @@ namespace neu3n0 {
         template <class T>
         static void insertionSort(T* a, size_t n, std::function<bool(const T&, const T&)> compare = compareLess<T>);
         template <class T>
-        static void mergeSort(T* a, size_t left, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>);  // [left, right)
+        static void mergeSort(T* a, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>, size_t left = 0);  // [left, right)
         template <class T>
-        static void quickSort(T* a, size_t left, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>);
+        static void quickSort(T* a, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>, size_t left = 0);  // [left, right) 
     public: // sort functions via iterators
         template<class RandomIt, class Type>
         static void selectionSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
@@ -83,13 +86,35 @@ void neu3n0::algorithms::insertionSort(T* a, size_t n, std::function<bool(const 
 }
 
 template <class T>
-void neu3n0::algorithms::mergeSort(T* a, size_t left, size_t right, std::function<bool(const T&, const T&)> compare) {
+void neu3n0::algorithms::mergeSort(T* a, size_t right, std::function<bool(const T&, const T&)> compare, size_t left) {
     if (left + 1 == right) return;
-    // if (left < right) return;
     size_t middle = left + (right - left) / 2;
-    mergeSort(a, left, middle, compare);
-    mergeSort(a, middle, right, compare);
+    mergeSort(a, middle, compare, left);
+    mergeSort(a, right, compare, middle);
     merge(a, left, middle, right, compare);
+}
+
+template <class T>
+void neu3n0::algorithms::quickSort(T* a, size_t right, std::function<bool(const T&, const T&)> compare, size_t left) {
+    if (left >= right) return;
+    size_t i = left + 1;
+    // size_t j = right;
+
+    // [0, n) not [0, n - 1)
+    size_t j = right - 1;
+    if (i > j) return;
+
+    while (i < j) {
+        if (a[i] < a[left]) ++i;
+        else {
+            std::swap(a[i], a[j]);
+            --j;
+        }
+    }
+    if (a[left] <= a[i]) --i;
+    std::swap(a[left], a[i]);
+    quickSort(a, i, compare, left);
+    quickSort(a, right, compare, i + 1);
 }
 
 /*---------- sort functions via iterators ----------*/
@@ -134,6 +159,15 @@ void neu3n0::algorithms::insertionSort(RandomIt first, RandomIt second, std::fun
         if (j != i) first[j] = tmp;
     }
 }
+
+// template <class RandomIt, class Type>
+// void neu3n0::algorithms::mergeSort(RandomIt first, RandomIt second, std::function<bool(const Type& a, const Type& b)> compare) {
+//     if ((second - first) == 1) return;
+//     size_t middle = (second - first) / 2;
+//     mergeSort(first, first + middle, compare);
+//     mergeSort(first + middle, second);
+//     merge(first, first + middle, second, compare);
+// }
 
 /*---------- merge via pointers and size ----------*/
 
@@ -222,3 +256,33 @@ void neu3n0::algorithms::merge(RandomIt firstBegin, RandomIt firstEnd, RandomIt 
         ++p;
     }    
 }
+
+// template <class RandomIt, class Type>
+// void neu3n0::algorithms::merge(RandomIt left, RandomIt middle, RandomIt right, std::function<bool(const Type&, const Type&)> compare) {
+//     size_t i = 0, j = 0, p = 0;
+//     Type* res = new Type[right - left];
+//     while (i < (middle - left) && j < (right - middle)) {
+//         if (compare(left[i], middle[j])) {
+//             res[p] = left[i];
+//             ++i;
+//         }
+//         else {
+//             res[p] = middle[i];
+//             ++i;
+//         }
+//         ++p;
+//     }
+//     while (i < (middle - left)) {
+//         res[p] = left[i];
+//         ++i;
+//         ++p;
+//     }
+//     while (j < (right - middle)) {
+//         res[p] = middle[j];
+//         ++j;
+//         ++p;
+//     }
+
+//     for (size_t in = 0; in < right - left; ++in) left[in] = res[in];
+//     delete[] res;
+// }
