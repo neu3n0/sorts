@@ -14,11 +14,13 @@ namespace neu3n0 {
             RandomIt secondBegin, RandomIt secondEnd, RandomIt res); // merge two arrays via iterators
         template <class T>
         static void merge(T* first, size_t count1, T* second, size_t count2, T* res); // merge two arrays via pointers and size
+
     private: // merge for mergeSort
         template <class T>
         static void merge(T* a, size_t left, size_t middle, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>); // merge two arrays via pointers and size
         // template <class RandomIt, class Type>
         // static void merge(RandomIt left, RandomIt middle, RandomIt right, std::function<bool(const Type&, const Type&)> compare); // merge two arrays via iterators
+
     public: // sort functions via pointer and size
         template <class T>
         static void selectionSort(T* a, size_t n, std::function<bool(const T&, const T&)> compare = compareLess<T>);
@@ -32,6 +34,7 @@ namespace neu3n0 {
         static void mergeSort(T* a, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>, size_t left = 0);  // [left, right)
         template <class T>
         static void quickSort(T* a, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>, size_t left = 0);  // [left, right) 
+
     public: // sort functions via iterators
         template<class RandomIt, class Type>
         static void selectionSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
@@ -43,6 +46,25 @@ namespace neu3n0 {
         static void insertionSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
         // template <class RandomIt, class Type>
         // static void mergeSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
+    public:
+        uint64_t fib(uint64_t n) {
+            if (n == 1 || n == 2) return 1;
+            return fib(n - 1) + fib(n - 2);
+        }
+
+        // a^n = a^k * a^k = a^(2k); n - четное,                  a^n = a^(2k) * a = a^(2k+1); n - нечетное
+        int64_t pow(int64_t a, int64_t n) {
+            if (n == 0) return 1;
+            // O(n)
+            // int b = pow(a, n / 2) * pow(a, n / 2);
+
+            // O(logn)
+            int64_t b = pow(a, n / 2);
+            b *= b;
+            
+            if (n % 2 == 1) b *= a;
+            return b;
+        }
     };
 };
 
