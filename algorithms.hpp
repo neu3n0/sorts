@@ -1,6 +1,9 @@
 #pragma once
 #include <functional>
 #include <iostream>
+#include <utility>
+#include <vector>
+#include <utility>
 
 namespace neu3n0 {
     class algorithms {
@@ -9,11 +12,6 @@ namespace neu3n0 {
         static bool compareLess(const T& a, const T& b) { return !(a < b); }
         template <class T>
         static bool compareMore(const T& a, const T& b) { return !(a > b); }
-        template <class RandomIt>
-        static void merge(RandomIt firstBegin, RandomIt firstEnd, 
-            RandomIt secondBegin, RandomIt secondEnd, RandomIt res); // merge two arrays via iterators
-        template <class T>
-        static void merge(T* first, size_t count1, T* second, size_t count2, T* res); // merge two arrays via pointers and size
 
     private: // merge for mergeSort
         template <class T>
@@ -21,7 +19,8 @@ namespace neu3n0 {
         // template <class RandomIt, class Type>
         // static void merge(RandomIt left, RandomIt middle, RandomIt right, std::function<bool(const Type&, const Type&)> compare); // merge two arrays via iterators
 
-    public: // sort functions via pointer and size
+    public: 
+        // sort functions via pointer and size
         template <class T>
         static void selectionSort(T* a, size_t n, std::function<bool(const T&, const T&)> compare = compareLess<T>);
         template <class T>
@@ -34,8 +33,10 @@ namespace neu3n0 {
         static void mergeSort(T* a, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>, size_t left = 0);  // [left, right)
         template <class T>
         static void quickSort(T* a, size_t right, std::function<bool(const T&, const T&)> compare = compareLess<T>, size_t left = 0);  // [left, right) 
+        static void countingSort(uint64_t* a, size_t n);  // [left, right) 
+        static void digitalSort(std::vector<std::pair<uint64_t, uint64_t>>& a);
 
-    public: // sort functions via iterators
+        // sort functions via iterators
         template<class RandomIt, class Type>
         static void selectionSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
         template <class RandomIt, class Type>
@@ -46,25 +47,28 @@ namespace neu3n0 {
         static void insertionSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
         // template <class RandomIt, class Type>
         // static void mergeSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
+        // template <class RandomIt, class Type>
+        // static void quickSort(RandomIt first, RandomIt second, std::function<bool(const Type&, const Type&)> compare);
+
     public:
-        uint64_t fib(uint64_t n) {
-            if (n == 1 || n == 2) return 1;
-            return fib(n - 1) + fib(n - 2);
-        }
+        // merge two arrays
+        template <class T>
+        static void merge(T* first, size_t count1, T* second, size_t count2, T* res);
+        template <class RandomIt>
+        static void merge(RandomIt firstBegin, RandomIt firstEnd, RandomIt secondBegin, RandomIt secondEnd, RandomIt res);
+        
+        // find element on k pos after sort
+        template <class T>
+        static T kth(T* a, size_t right, size_t k, std::function<bool(const T&, const T&)> compare = compareLess<T>, size_t left = 0); // [left, right)
 
-        // a^n = a^k * a^k = a^(2k); n - четное,                  a^n = a^(2k) * a = a^(2k+1); n - нечетное
-        int64_t pow(int64_t a, int64_t n) {
-            if (n == 0) return 1;
-            // O(n)
-            // int b = pow(a, n / 2) * pow(a, n / 2);
+        // largest increasing subsequence
+        template<class T>
+        static size_t LIS(T* arr, size_t n, bool check = false);
 
-            // O(logn)
-            int64_t b = pow(a, n / 2);
-            b *= b;
-            
-            if (n % 2 == 1) b *= a;
-            return b;
-        }
+        // fib num
+        static uint64_t fib(uint64_t n);
+        // pow
+        static int64_t pow(int64_t a, int64_t n);
     };
 };
 
@@ -127,7 +131,8 @@ void neu3n0::algorithms::quickSort(T* a, size_t right, std::function<bool(const 
     if (i > j) return;
 
     while (i < j) {
-        if (a[i] < a[left]) ++i;
+        // if (a[i] < a[left]) ++i;
+        if (compare(a[left], a[i])) ++i;
         else {
             std::swap(a[i], a[j]);
             --j;
@@ -137,6 +142,32 @@ void neu3n0::algorithms::quickSort(T* a, size_t right, std::function<bool(const 
     std::swap(a[left], a[i]);
     quickSort(a, i, compare, left);
     quickSort(a, right, compare, i + 1);
+}
+
+void neu3n0::algorithms::countingSort(uint64_t* a, size_t n) {
+    if (n < 1) return;
+    uint64_t maxNum = a[0];
+    for (size_t i = 1; i < n; ++i)
+        if (a[i] > maxNum)
+            maxNum = a[i];
+    uint64_t* b = new uint64_t[maxNum + 1];
+    for (size_t i = 0; i <= maxNum; ++i) b[i] = 0;
+    for (size_t i = 0; i < n; ++i)
+        b[a[i]]++;
+    size_t p = 0;
+    for (size_t i = 0; i <= maxNum; ++i) {
+        for (size_t j = 0; j < b[i]; ++j) {
+            a[p] = i;
+            ++p;
+        }
+    }
+    if (p != n) std::cout << "?\n"; 
+    delete[] b;
+}
+
+void neu3n0::algorithms::digitalSort(std::vector<std::pair<uint64_t, uint64_t>>& a) {
+    using pairUInt = std::pair<uint64_t, uint64_t>;
+    
 }
 
 /*---------- sort functions via iterators ----------*/
@@ -308,3 +339,83 @@ void neu3n0::algorithms::merge(RandomIt firstBegin, RandomIt firstEnd, RandomIt 
 //     for (size_t in = 0; in < right - left; ++in) left[in] = res[in];
 //     delete[] res;
 // }
+
+/*---------- find element on k pos after sort ----------*/
+template <class T>
+T neu3n0::algorithms::kth(T* a, size_t right, size_t k, std::function<bool(const T&, const T&)> compare, size_t left) {
+    if (left >= right) return a[left]; 
+    size_t i = left + 1;
+    size_t j = right;
+
+    while (i < j) {
+        if (compare(a[left], a[i])) ++i;
+        else {
+            std::swap(a[i], a[j]);
+            --j;
+        }
+    }
+    if (a[left] <= a[i]) --i;
+    std::swap(a[left], a[i]);
+    if (k < i - left) return kth(a, i - 1, k, compare, left);
+    else if (k == i - left) return a[k + left];
+    else return kth(a, right, k - (i - left + 1), compare, i + 1);
+}
+
+template <class T>
+size_t neu3n0::algorithms::LIS(T* a, size_t n, bool check) {
+    int* f = new int[n];
+    int* p = new int[n];
+    for (size_t i = 0; i < n; ++i) {
+        f[i] = 1;
+        for (size_t j = 0; j < i; ++j)
+            if (a[i] > a[j]) {
+                if (f[i] < f[j] + 1) {
+                    f[i] = f[j] + 1;
+                    p[i] = j;
+                }
+                // f[i] = std::max(std::max(f[i], f[j] + 1), 1);   if we need sequence --> not max --> if () {} --> and save way
+            }
+    }
+    int ans = 0;
+    size_t ind = 0;
+    for (size_t i = 0; i < n; ++i)
+        if (f[i] > ans) {
+            ans = f[i];
+            ind = i;
+        }
+        // ans = std::max(ans, f[i]); if we ...
+
+    if (check) {
+        for (size_t i = 0; i < ans; ++i) {
+            std::cout << a[ind] << " ";
+            ind = p[ind];
+        }
+        std::cout << std::endl;    
+    }
+    
+            
+    delete[] f;
+
+    return ans;
+}
+
+uint64_t neu3n0::algorithms::fib(uint64_t n) {
+    if (n == 1 || n == 2) return 1;
+    return fib(n - 1) + fib(n - 2);
+}
+
+int64_t pow(int64_t a, int64_t n) {
+    // a^n = a^k * a^k = a^(2k); n - четное, 
+    // a^n = a^(2k) * a = a^(2k+1); n - нечетное
+    if (n == 0) return 1;
+    
+    // O(n)
+    // int b = pow(a, n / 2) * pow(a, n / 2);
+    
+    // O(logn)
+    int64_t b = pow(a, n / 2);
+    b *= b;
+
+    if (n % 2 == 1) b *= a;
+    return b;
+}

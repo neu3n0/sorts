@@ -12,6 +12,9 @@ public:
     static bool testViaPointer();
     static bool testViaIterator();
     static bool testMerge();
+    static bool testKthInSortArray();
+    static bool testNonCompareSorts();
+    static bool testLongestInceSubSec();
 private:
     const static size_t count{10};
     const static size_t count1{7};
@@ -22,7 +25,7 @@ private:
         std::bind(neu3n0::algorithms::compareLess<double>, std::placeholders::_1, std::placeholders::_2);
     inline static bool checkFirst{false};
     inline static double tmp[10]{0};
-// public:
+public:
     template <class T>
     inline static void printArray(const T& a, size_t n, const std::string& name = "") {
         if (!name.empty()) std::cout << name << ":\t";
@@ -75,6 +78,10 @@ bool tests::testViaPointer() {
     neu3n0::algorithms::quickSort(a, count);
     printArray(a, count, "quickSort");
     checkArray(a, count, cmpLess);
+
+    memcpy(a, b, count * sizeof(b[0]));
+    std::cout << "k = " << 3 << " : " << neu3n0::algorithms::kth(a, count - 1, 3) << std::endl;
+    printArray(a, count, "kth");
 
     checkFirst = true;
     delete[] a;
@@ -156,5 +163,70 @@ bool tests::testMerge() {
     neu3n0::algorithms::merge(v1.begin(), v1.end(), v2.begin(), v2.end(), vRes.begin());
     tests::printArray(vRes, vRes.size(), "vRes: ");
     checkArray(vRes, vRes.size(), cmpLess);
+    return true;
+}
+
+bool tests::testKthInSortArray() {
+    std::cout << "/*---------- kth index in sort array ----------*/" << std::endl;
+    double* a = new double[count];
+    for (size_t i = 0; i < count; ++i) a[i] = rand() % 20 + static_cast<double>(rand()) / RAND_MAX;
+    printArray(a, count);
+    double x = neu3n0::algorithms::kth(a, count - 1, 4);
+    neu3n0::algorithms::mergeSort(a, count);
+    printArray(a, count);
+    std::cout << "k = " << 4 << "   a[k] = " << x << std::endl;
+    assert(x == a[4]);
+    delete[] a;
+
+    for (size_t t = 0; t < 100; ++t) {
+        double* a = new double[count];
+        size_t k = rand() % count;
+        for (size_t i = 0; i < count; ++i) a[i] = rand() % 20 + static_cast<double>(rand()) / RAND_MAX;
+        double x = neu3n0::algorithms::kth(a, count - 1, k);
+        neu3n0::algorithms::mergeSort(a, count);
+        assert(x == a[k]);
+        delete[] a;
+    }
+
+    return true;
+}
+
+bool tests::testNonCompareSorts() {
+    std::cout << "/*---------- test non compare sorts ----------*/" << std::endl;
+    uint64_t* arr = new uint64_t[10];
+    for (size_t i = 0; i < 10; ++i) arr[i] = rand() % 20;
+    tests::printArray(arr, 10, "arr before");
+    neu3n0::algorithms::countingSort(arr, 10);
+    tests::printArray(arr, 10, "countingSort");
+    for (size_t i = 1; i < 10; ++i)
+        assert(arr[i] >= arr[i - 1]);
+
+    for (size_t in = 0; in < 100; ++in) {
+        for (size_t i = 0; i < 10; ++i) arr[i] = rand() % 20;
+        neu3n0::algorithms::countingSort(arr, 10);
+        for (size_t i = 1; i < 10; ++i)
+            assert(arr[i] >= arr[i - 1]);
+    }
+
+    delete[] arr;
+    return true;
+}
+
+bool tests::testLongestInceSubSec() {
+    std::cout << "/*---------- test largest increasing subsequence ----------*/" << std::endl;
+
+    int* a = new int[10]{2, 1, 4, 5, 2, 3, 0, 0, 0, 4};
+    printArray(a, 10);
+    size_t ans = neu3n0::algorithms::LIS(a, 10, true);
+    std::cout << ans << std::endl;
+    assert(ans == 4);
+    for (size_t in = 0; in < 10; ++in) {
+        for (size_t i = 0; i < 10; ++i) a[i] = rand() % 14;
+        // tests::printArray(a, 10);
+        neu3n0::algorithms::LIS(a, 10);
+    }
+
+    delete[] a;
+
     return true;
 }
